@@ -1,0 +1,573 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage[english]{babel}
+\usepackage{tabularx,booktabs,ragged2e}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{upquote}
+\usepackage{amsmath, amssymb}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Prob}{\mathbb{P}}
+\usepackage{svg}
+\usepackage{bbm}
+\usepackage{bm}
+
+\doublespacing
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
+
+
+\title{
+    Inspect the Connection between Cryptocurrency and Stock 
+    through Markov Switching Process
+}
+
+\author{HSIU-HSUAN, YEH}
+
+\begin{document}
+\pagestyle{headings}	
+\newpage
+
+\maketitle
+
+\begin{abstract}
+The reason for this article choosing the markov switching assumption is that I am curious
+about if I can identify the direction of capital flow between the cryptocurrency and stock
+markets. This kind of question is always difficult since it's hard to decide which leads
+the others. However, we can still somehow have some idea about the relationship of these
+markets. The main results of this article is that we can observe the close relation in
+the early period which means the switching process of markets are highly overlapped, 
+while in the recent year, the switching process starts to be isolated. 
+\end{abstract}
+
+
+\section{Introduction}
+  Recently, cryptocurrency has gained a lot of attention. Some are optimistic to
+the development of the so-called decentralized finance due to the flexibility and 
+the freedom of sharing information. However, in the other side of the "freedom"
+is the lack of regularity. Therefore, Some scandal and fraud has taken place, for example, the 
+collapse of Terra Luna, bankruptcy of FTX which is the previous second-largest 
+cryptocurrency exchange before bankruptcy, to name just a few. It seems that there are large amounts
+of to speculate capital flows in the cryptocurrency market imposing the crypto assets
+in a high risk of price fluctuation. What's more, due to the tight connection in 
+financial market, traditional assets will be influenced in some sense. For example,
+if crush happens in cryptocurrency market, there might be a large capital flowing
+to the other financial markets such as the stocks and bonds for the sake of avoiding
+risk.
+
+  The purpose of this research is to examine the connection between cryptocurrencies 
+and stock prices using a Markov switching process. The reason that I assume there
+is Markov switching in both market is that there two common type of financial markets 
+which is the so called "bear market" and "bull market",
+Hence, it seems reasonable to assume there are two hidden states for
+both markets. Furthermore, I also curious about if the ordered of changing process 
+which the cryptocurrency markets leads the stock markets based on the prior knowledge discussed
+above can be observed.
+
+  The structure of this article is as follows: I first examine the characteristics of the return 
+of S\&P500 and BTC-USD such as stationarity condition, mean and standard error. 
+Basic OLS of autoregressive is considered as well. Afterwards, I combine the autoregressive property and 
+markov switching assumption to model the assets return.
+
+\newpage
+
+\begin{figure}[h!]
+	\centering
+	\includesvg[width=300pt]{res/assests.svg}
+	\caption{the historical weekly price of BTC-USD and S\&P500}
+	
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includesvg[width=300pt]{res/assets_price.svg}
+	\caption{the historical weekly return of BTC-USD and S\&P500}
+	
+\end{figure}
+
+
+\newpage
+
+\section{Data}
+Both the S\&P500 amd BTC-USD historical weekly price start from 2018/1/1 to 2023/5/1 
+is download from the website of the Yahoo Finance with 278 observations. Due to
+the non-stationary issues of the price, I transform the price data to log return.
+Demonstrate the plot in Figure 1. After transformation, the mean of the S\&P500 
+weekly return is about 0.15047\%and the BTC-USD's is about
+0.19189\%. Though BTC-USD seems to have higher return, the sample standard 
+deviation differ quite a lot. The former is 0.02835 while the latter is 0.10143. 
+It turns out that the BTC-USD is more volatile than the S\&P500, in average and thus, 
+suffering from the risk of high return fluctuation.
+
+To have the basic understanding about return data of both S\&P500 and BTC-USD 
+I conduct the OLS by assuming the existence of auto correlation for both 
+S\&P500 and BTC-USD. In the following section I will use the notation of spx and btc
+to specify the weekly return of S\&P500 and BTC-USD.
+A thousand miles begin with a single step,
+let's first fit AR model and later I will broaden the assumption to more general case which
+is the MS-AR model. To decide the proper lag for the AR model, inspecting the autocorrelation
+plot is always a good starting point. As shown in figure 2 and 3, we can see that the 
+autocorrelation for btc persists much longer comparing to the spx.
+However, it's quite difficult to interpret such the long persistence. Therefore, 
+I only consider lag period of 5 weeks for spx and 9 weeks, around 2 month for btc
+in order to fit the AR model.
+
+\newpage
+
+\begin{figure}[h]
+	\centering
+	\includesvg[width=260pt]{res/acf_btc_return.svg}
+	\caption{auto correlation function of the BTC-USD weekly return}
+\end{figure}
+
+
+\begin{figure}[h]
+	\centering
+	\includesvg[width=260pt]{res/acf_spx_return.svg}
+	\caption{auto correlation function of the S\&P500 weekly return}
+\end{figure}
+
+\newpage
+
+Before conducting the OLS, we need to ensure the stationarity condition
+holds. The hypothesis test I choose is the Augmented Dickey Fuller test with 
+constant deterministic for both situation, lag amount of 5 and 9 period for spx and btc.
+The ADF statistic is -7.95658 and -4.60413. Because both reject the nll
+hypothesis that there is uni-root, the stationarity requirement is satisfied. The 
+following is the specification for the OLS. The reason that I consider the constant 
+determinstic is that I first make the assumption, and then decide whether to lose 
+it or not. After all, the 0 is just the special case for the constant deterministic.
+
+$$
+spx_t = \phi_0 + \Sigma_{i=1}^p \phi_i spx_{t-i} + \epsilon_t
+$$
+
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{lcccccc} 
+     & (1) & (2) & (3)  & (4)  & (5)  \\
+    Variables &  AR(1)  &  AR(4), $\beta_0=0$  &  AR(4) &   AR(5), $\beta_0=0$  &  AR(5)\\
+    \hline
+    constant  &   0.00158  &  &  0.00165  & &  0.00205 \\
+     &  (0.00170)  &  & (0.00172)  & & (0.00171) \\
+     & & & & & \\
+    $spx_{t-1}$  &  -0.087531  &  -0.07609  &  -0.07894  &  -0.09447  & -0.09868   \\
+     &  (0.06006)  &  (0.06046)  &  (0.06055)  &  (0.06027)  & (0.06033) \\
+     & & & & & \\
+    $spx_{t-2}$  &  &  0.04725   &  0.04403  &  0.05334 &  0.04956  \\
+      & &  (0.0606)  &  (0.0607)  &  (0.06007)  & (0.06011) \\
+      & & & & & \\
+    $spx_{t-3}$  &  &  0.01386   &  0.01054  &  0.02231 &  0.01852 \\
+      & &  (0.06058)  &  (0.06069)  &  (0.06008)  & (0.06012) \\
+      & & & & & \\
+    $spx_{t-4}$  &  &  -0.07834  &  -0.08142  &  -0.08272 &  -0.08671   \\
+      & &  (0.06037)  &  (0.06047)  &  (0.06)  & (0.06005) \\
+      & & & & & \\
+    $spx_{t-5}$  &  &  &  &  -0.1086$^{\ast}$  &  -0.11274$^{\ast}$  \\
+      & &    &  &  (0.05998)  & (0.06003) \\
+    \hline
+\end{tabular}
+\caption{OLS for spx}
+\end{center}
+\end{table}
+
+In terms of AR(5) with zero mean, the t statistics for $spx_{t-1}$ is -1.57, 
+p-value is 0.1182 which is slightly insignificant in terms of the 10\% significant
+level. 
+
+\newpage
+
+$$
+btc_t = \phi_0 + \Sigma_{i=1}^p \phi_i btc_{t-i} + \epsilon_t
+$$
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{lcccccc} 
+     & (1) & (2) & (3)  & (4)  & (5)  \\
+    Variables &  AR(1) &  AR(5), $\beta_0=0$  &  AR(5) &   AR(9), $\beta_0=0$  &  AR(9) \\
+    \hline
+    constant  &   0.00239  &  &  0.00420  & &  0.00308 \\
+     &  (0.00606)  &  & (0.006)  & & (0.00589) \\
+     & & & & & \\
+    $btc_{t-1}$  &  0.08791  &  0.08510  &  0.08316  &  0.12168$^{\ast\ast}$  & 0.1208$^{\ast}$   \\
+     &  (0.05974)  &  (0.06088)  &  (0.061)  &  (0.06156)  & (0.06167) \\
+     & & & & & \\
+    $btc_{t-2}$  &  &  0.01046   &  0.01031  &  0.01930  &  0.01831  \\
+      & &  (0.05965)  &  (0.05972)  &  (0.06079)  & (0.06091) \\
+      & & & & & \\
+    $btc_{t-3}$  &  &  -0.03189   &  -0.03523  &  -0.05182  &  -0.05277\\
+      & &  (0.05951)  &  (0.05958)  &  (0.06082)  & (0.06093) \\
+      & & & & & \\
+    $btc_{t-4}$  &  &  -0.03249  &  -0.04106  &  0.01843  &  0.01714   \\
+      & &  (0.05903)  &  (0.05909)  &  (0.06007)  & (0.0602) \\
+      & & & & & \\
+    $btc_{t-5}$  &  &  0.08378  &  0.08203  &  0.06693  &  0.06568  \\
+      & &  (0.05906)  &  (0.05913)  &  (0.05975)  & (0.05988) \\
+      & & & & & \\
+    $btc_{t-6}$  &  &  &  &   0.01809  &  0.01736 \\
+      & & & &  (0.05847)  & (0.05857) \\
+      & & & & & \\
+    $btc_{t-7}$  &  &  &  &  0.01323  &  0.01242 \\
+      & & & &  (0.05848) & (0.05854) \\
+      & & & & & \\
+    $btc_{t-8}$  &  &  &  &   0.14785$^{\ast\ast}$  &  0.1475$^{\ast\ast}$ \\
+      & & & &  (0.05893)  & (0.05902) \\
+      & & & & & \\
+      $btc_{t-9}$  &  &  &  &   -0.08995  &  -0.08998 \\
+      & & & &  (0.05896)  & (0.05904) \\
+    \hline
+\end{tabular}
+\caption{OLS report for btc}
+\end{center}
+\end{table}
+
+\newpage
+
+\section{Specification}
+Inherit from the previous OLS AR(p) specification, let's add the component of markov 
+swithching process and name it as MS-AR(p). I assume there are two kinds of 
+hidden state for each period t, 
+and for different state, the coefficient differs as well. The variance is considered
+to be homogeneous for the reason of simplicity.
+
+\begin{align}
+  s_t &\in \{ 0, 1 \} \\
+  spx_t &= (\mathbbm{1}(s_t = 0)\phi_0^0 + \mathbbm{1}(s_t = 1)\phi_0^1) + \Sigma_{t=1}^p \phi(s_{t-i})spx_{t-i} +\epsilon_t \\
+        &= (1-s_t)\phi_0^0 + s_t\phi_0^1 + \Sigma_{i=1}^p \phi_i(s_t)spx_{t-i} +\epsilon_t \\
+  \phi_i(s_t) &= (1-s_t)\phi_i^0 + s_t\phi_i^1 \\
+  btc_t &= \phi_0(s_t) + \Sigma_{i=1}^p \phi_i(s_t)btc_{t-i} +\epsilon_t
+\end{align}
+
+The transition probability matrix:
+$$
+P =    
+\begin{bmatrix}
+ \Prob(s_t=0 | s_{t-1}=0) & \Prob(s_t=1 | s_{t-1}=0)  \\
+  \Prob(s_t=0 | s_{t-1}=1) & \Prob(s_t=1 | s_{t-1}=1)
+\end{bmatrix}
+=\begin{bmatrix}
+  p_{00} & p_{01}  \\
+  p_{10} & p_{11}
+ \end{bmatrix}
+$$
+$$
+\Sigma_{j=0}^1 p_{ij} = 1
+$$
+
+My main purpose is to identify the markov-switching property. The standard AR
+assumption will have such judge that the results of the estimation is a kind of mixture 
+leading to the imprecise estimation.
+However, it's quite tricky to estimate MS-AR model some assumptions on the 
+initial prediction probability are required. I will address this in next section.
+I first assume $\epsilon_t$ follows normal 
+distribution to apply Quasi-maximum likelihood estimation. I will examine the assumption
+through analysis on residual to see if it make sense.
+
+
+\section{Estimation}
+Denote: $S_T = \{s_T, ..., s_{t+1}, s_t, s_{t-1}, ...s_1\} = \{0, 1\}^T$, 
+is the hidden state of the whole period. $Y_T = \{y_T, ..., y_{t+1}, y_t, y_{t-1}, ...y_1\}$ 
+which can be the observed spx or btc of the whole period.
+
+In the derivation step of quassi log-likelihood function, there are two sorts of probability:
+
+1. prediction probability: $\Prob(s_t = i | Y_{t-1})$
+
+2. filtering probability: $\Prob(s_t = i | Y_{t})$
+
+The parameters to be estimated: $\theta = ( p_{00}, p_{11}, \sigma_e^2, \{ \phi_i^s | s \in {0, 1} \}_{i=0}^p )'$
+
+$$
+L(\theta) = \frac{1}{T} \Sigma_{t=1}^T log f(y_t | Y_{t-1}, s_t, \theta)
+$$
+
+where f is the pdf of $\epsilon_t$, and since $s_t$ is known we need to take the expectation
+and get the quassi log-likelihood $L'(\theta) = \frac{1}{T} \Sigma_{t=1}^T log f(y_t | Y{_t-1}, \theta)$.
+
+$$  
+f(y_t | Y{_t-1}, \theta) = 
+    \Prob(s_t=0|Y_{t-1})\Prob(y_t|Y_{t-1}, s_{t}=0; \theta) +
+    \Prob(s_t=1|Y_{t-1})\Prob(y_t|Y_{t-1}, s_{t}=1; \theta)
+$$
+$$
+\Prob(s_t = j | Y_{t-1}) = p_{0j} * \Prob(s_{t-1}=0|Y_{t-1}) +
+                           p_{1j} * \Prob(s_{t-1}=1|Y_{t-1})
+$$
+$$
+\Prob(s_{t-1}=j|Y_{t-1}) = \frac{\Prob(y_{t-1}|s_{t-1}=j, Y_{t-2}; \theta) * 
+                                 \Prob(s_{t-1} = j | Y_{t-2})}{\Prob(y_{t-1}|Y_{t-2}; \theta)}
+$$
+
+Through the backward induction, we need to consider the initial condition: $\Prob(s_1 = j | Y_0)$,
+and I folllow suggestion from Hamilton (1994) set is as the limiting unconditional
+counterpart: the third column of $(A'A)^{-1}A'$
+$
+A = 
+\begin{bmatrix}
+  I_{2} - P \\ 1_2' 
+\end{bmatrix}
+$
+where I is the identity matrix and P is the transition matrirx, $1_2 = [1, 1]'$
+
+Tips for coding the quassi log-likelihood function is toset the 
+initial condition first, and follow the equation mentioned above sequentially.
+
+After finish the construction of the quassi log-likelihood function, I use the BFGS to optimize the quassi
+log-likelihood. Moreover, the parameters $p_{00}, p_{11}$ should in the [0, 1] interval
+and $\sigma_{\epsilon}^2$ should greater or equal to 0 so I take advantage of the normal
+CDF and exponential function to meet the restrictions. Speaking of asymptotic standard error, 
+I first calculate the hessian matrix of the quassi log-likelihood function
+evaluating it at MLE, and then apply the delta method to get the correct standard error
+of $p_{00}, p_{11}. \sigma_{\epsilon}^2$
+
+when it comes to model selection, AIC and BIC are two types of common criterion.
+
+\begin{align}
+    AIC &= T\log(\frac{SSR}{T}) + 2(2(p+1)+3) \\
+    BIC &= T\log(\frac{SSR}{T}) + (2(p+1)+3)\log T
+\end{align}
+where T is the number of observations, SSR is the sum of squared residuals and 
+(2(p+1)+3) is the number of estimated parameters. To calculate the sum of squared
+residuals, the $\mathbbm{1}(s_t = i)$ should be estimated. My personal selection
+is using smoothing probability which is specified by Kim(1994) as the 
+estimator. 
+\begin{align}
+  \hat{\mathbbm{1}}(s_t = 0) &= \Prob(s_t = 0 | Y_T) \\
+  \hat{\mathbbm{1}}(s_t = 1) &= \Prob(s_t = 1 | Y_T)
+\end{align}
+
+\newpage
+
+The derivation of smoothing probability:
+
+$$
+\Prob(s_t = i | Y_T) = \Prob(s_{t+1} = 0 | Y_T) \Prob(s_t = i | s_{t+1} = 0, Y_T) +
+\                      \Prob(s_{t+1} = 1 | Y_T) \Prob(s_t = i | s_{t+1} = 1, Y_T)
+$$
+$$
+\Prob(s_t = i | s_{t+1} = j, Y_T) 
+    = \frac{\Prob(s_{t+1} = j | s_t = i, Y_t)\Prob(s_t = i | Y_t)}
+    {\Prob(s_{t+1} = j | Y_t)}
+    = \frac{p_{ij}\Prob(s_t = i | Y_t)}{\Prob(s_{t+1} = j | Y_t)}
+$$
+$$
+\Rightarrow \Prob(s_t = i | Y_T) = \Prob(s_t = i | Y_t)(\frac{p_{i0}\Prob(s_{t+1} = 0 | Y_T)}{\Prob(s_{t+1} = 0 | Y_t)} + 
+    \frac{p_{i1}\Prob(s_{t+1} = 1 | Y_T)}{\Prob(s_{t+1} = 1 | Y_t)} )
+$$
+
+For coding part, I first get the prediction and filtering probability through the 
+quassi maximum likelihood estimator, and the use the filtering probability at T as
+the initial point, calculate the remained part backward.
+
+\newpage
+
+\begin{table}[h!]
+\begin{center}
+  \begin{tabular}{lcccccc}
+     & (1) & (2) & (3) \\
+    Variablues & AR(1) & AR(4) & AR(5)  \\
+    \hline
+    $(1-s_t)$constant & 0.00667(0.03181) & 0.00868(0.03273) & 0.00887(0.03098) \\
+    \\
+    $(s_t$constant & -0.02175(0.12128) & -0.01583(0.06318) & -0.01509(0.05955) \\
+    \\
+    $(1-s_t)$spx$_{t-1}$ & -0.28243(1.12692) & -0.34289(1.12399) & -0.34124(1.02077)  \\
+    \\
+    $s_t$spx$_{t-1}$ & 1.03979(4.09697) & 0.7952(2.14944) & 0.77522(1.99865) \\
+    \\
+    $(1-s_t)$spx$_{t-2}$ & & -0.02216(1.04064) &  -0.03667(1.14148) \\
+    \\
+    $s_t$spx$_{t-2}$ & & 0.39114(1.73105) & 0.38122(1.56481) \\
+    \\
+    $(1-s_t)$spx$_{t-3}$ & & -0.13722(1.10954) & -0.11505(1.11394) \\
+    \\
+    $s_t$spx$_{t-3}$ & & 0.26273(1.58801) & 0.28116(1.55246) \\
+    \\
+    $(1-s_t)$spx$_{t-4}$ & & -0.22786(1.15642) & -0.26006(1.02341) \\
+    \\
+    $s_t$spx$_{t-4}$ & & 0.309134(1.74543) & 0.30733(1.87587) \\
+    \\
+    $(1-s_t)$spx$_{t-5}$ & & & -0.13458(1.02849)  \\
+    \\
+    $s_t$spx$_{t-5}$ & & & -0.01249(2.17433) \\
+    \\
+    $p_{00}$ & 0.82308(1.57008) & 0.63659(1.99715) & 0.65189(1.87251) \\
+    \\
+    $p_{11}$ &  0.12336(1.62135) & 0.18717(1.51741) & 0.2035(1.47203) \\
+    \\
+    $\sigma_{\epsilon}^2$ & 0.00052(0.00087)  & 0.00043(0.00072) & 0.000421(0.0007)\\
+    \\
+    AIC & -2139.36473 & -2165.29219 & -2150.59379 \\
+    \\
+    BIC & -2113.9966 & -2118.32152 & -2096.45171 \\
+    \hline
+  \end{tabular}
+  \caption{normal quassi MLE report for spx}
+\end{center}
+\end{table}
+
+\newpage
+
+
+\begin{figure}[h]
+	\centering
+	\includesvg[width=350pt]{res/spx_normal.svg}
+	\caption{AR(4) residuals of spx}
+\end{figure}
+
+Because AR(4) has the lowest AIC and BIC, I choose it to do the residuals
+analysis to see whether the normal assumption is proper. To test whether the residuals
+follow a normal distribution, I decide to use the Jarque-Bera test and the test
+statistics is 180.239 which the null hypothesis is rejected. Though the null hypothesis
+has been rejected, I still think the normal distribution is not a bad approximation.
+In other word, with high possibility that the approximation won't deviate a lot changing
+the distribution assumption to student-t.
+
+\newpage
+
+\begin{table}[h!]
+  \begin{center}
+    \begin{tabular}{lcccccc}
+       & (1) & (2) & (3) \\
+      Variablues & AR(1) & AR(5) & AR(9)  \\
+      \hline
+      $(1-s_t)$constant & 0.00239(0.52578) & -0.0851(0.46047) & 0.03227(0.201301) \\
+      \\
+      $s_t$constant & 0.00239(0.52578) & 0.01678(0.11573) & -0.01984(0.2149) \\
+      \\
+      $(1-s_t)$btc$_{t-1}$ & 0.08791(3.04313) & 0.68697(3.36902) & 0.05143(1.5145)  \\
+      \\
+      $s_t$btc$_{t-1}$ & 0.08791(3.04313) & -0.01835(1.07007) & 0.09761(1.91753) \\
+      \\
+      $(1-s_t)$btc$_{t-2}$ & & 0.68697(5.44482) &  -0.00111(1.60678) \\
+      \\
+      $s_t$btc$_{t-2}$ & & -0.07558(1.25567) & 0.04457(1.42198) \\
+      \\
+      $(1-s_t)$btc$_{t-3}$ & & -0.27521(2.69772) & -0.02662(1.73871) \\
+      \\
+      $s_t$btc$_{t-3}$ & & -0.00082(1.07955) & -0.06516(1.67806) \\
+      \\
+      $(1-s_t)$btc$_{t-4}$ & & -0.11291(3.5996) &  -0.03589(1.56324) \\
+      \\
+      $s_t$btc$_{t-4}$ & & -0.03358(1.07279) &  0.07499(1.67469) \\
+      \\
+      $(1-s_t)$btc$_{t-5}$ & & 0.27714(5.59203) & 0.15949(1.73148)  \\
+      \\
+      $s_t$btc$_{t-5}$ & & 0.05071(1.32777) & 0.00454(1.45309) \\
+      \\
+      $(1-s_t)$btc$_{t-6}$ & & & 0.23918(1.78003)  \\
+      \\
+      $s_t$btc$_{t-6}$ & & & -0.20771(1.62786) \\
+      \\
+      $(1-s_t)$btc$_{t-7}$ & & & 0.10729(1.69226)  \\
+      \\
+      $s_t$btc$_{t-7}$ & & & -0.07181(1.35164) \\
+      \\
+      $(1-s_t)$btc$_{t-8}$ & & & 0.15749(1.88957)  \\
+      \\
+      $s_t$btc$_{t-8}$ & & &  0.10623(1.32402) \\
+      \\
+      $(1-s_t)$btc$_{t-9}$ & & & 0.25688(2.27741 )  \\
+      \\
+      $s_t$btc$_{t-9}$ & & & -0.37145(2.17131) \\
+      \hline
+    \end{tabular}
+    \caption{normal quassi MLE report for btc}
+  \end{center}
+  \end{table}
+
+\newpage
+
+\begin{table}[h!]
+  \begin{center}
+    \begin{tabular}{lcccccc}
+       & (1) & (2) & (3) \\
+      Variablues & AR(1) & AR(5) & AR(9)  \\
+      \hline
+      $p_{00}$ & 0.5(2470) &  0.05078(3.05193) & 0.57067( 2.15313) \\
+      \\
+      $p_{11}$ &  0.5(2470) &  0.83393(1.44172) &  0.65415(3.61299) \\
+      \\
+      $\sigma_{\epsilon}^2$ & 0.01009(0.01427)  &  0.00685(0.01384) & 0.00645(0.0122)\\
+      \\
+      AIC & -1259.17703 & -1378.71757 & -1369.0413 \\
+      \\
+      BIC & -1233.80891 & -1324.5755 & -1286.36294 \\
+      \hline
+    \end{tabular}
+    \caption{normal quassi MLE report for btc}
+  \end{center}
+  \end{table}
+
+  \begin{figure}[h!]
+    \centering
+    \includesvg[width=350pt]{res/btc_normal.svg}
+    \caption{AR(5) residuals of btc}
+  \end{figure}
+
+I conduct the Jarque-Bera test on the AR(5) of btx as well, the null hypothesis is
+rejected. In this case, student-t distribution may be a better choice. However, since 
+the coefficient are all significant and the problem might stems from the small size
+of dataset, I didn't give it a shot.
+
+\newpage
+
+\begin{figure}[h!]
+  \centering
+  \includesvg[width=300pt]{res/smooth_spx.svg}
+  \caption{smoothing probabiltiy of spx modeled by AR(4)}
+\end{figure}
+
+
+\begin{figure}[h!]
+  \centering
+  \includesvg[width=300pt]{res/smooth_btc.svg}
+  \caption{smoothing probabiltiy of btc modeled by AR(5)}
+\end{figure}
+
+\newpage
+
+\begin{figure}[h!]
+  \centering
+  \includesvg[width=300pt]{res/compare1.svg}
+  \caption{predicted state comparison(2018/02/12 - 2019-11-04)}
+\end{figure}
+\vspace{2cm}
+
+\begin{figure}[h!]
+  \centering
+  \includesvg[width=300pt]{res/compare2.svg}
+  \caption{predicted state comparison(2019/11/11 - 2021-08-02)}
+\end{figure}
+
+\newpage
+
+\begin{figure}[h!]
+  \centering
+  \includesvg[width=300pt]{res/compare3.svg}
+  \caption{predicted state comparison(2021/08/09 - 2023-05-01)}
+\end{figure}
+
+\section{Conclusion}
+
+After putting a lot of effort isolating the hidden states, we can observe that
+the relationship of changing process in two markets differ quite a lot to the past.
+Although technically, I get different state's smoothing probability in each markets, 
+there is no actual meaning of "state 0" and "state 1". In fact the "state 0" varies 
+a lot between two markets. Hence, I try to find have some insight and decide to 
+reverse the state 0 as state 1 in stock markets. That is the pattern we observed from
+figure 9 to 11.
+
+\newpage
+
+\begin{thebibliography}{9}
+    \bibitem{article} Hamilton (1994) Time Series Analysis
+    
+    \bibitem{article} Kim (1994) Dynamic linear models with Markov-switching
+    
+    \end{thebibliography}
+
+\end{document}
+
