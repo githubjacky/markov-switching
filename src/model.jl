@@ -314,7 +314,6 @@ plot(
     plot(
         TimeArray(id_btc[begin+91:begin+181], pred_state_btc[begin+91:begin+181]), 
         labels="btc", linewidth=2,
-        title="predicted state in 2019/11/11 - 2021/8/2"
     ),
     layout=(2, 1)
 )
@@ -332,7 +331,6 @@ plot(
     plot(
         TimeArray(id_btc[begin+182:end], pred_state_btc[begin+182:end]), 
         labels="btc", linewidth=2,
-        title="predicted state in 2019/11/11 - 2021/8/2"
     ),
     layout=(2, 1)
 )
